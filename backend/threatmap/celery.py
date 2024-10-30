@@ -15,6 +15,6 @@ app.autodiscover_tasks(['threatapp'])  # Update with your app name
 app.conf.beat_schedule = {
     'fetch-every-10-minutes': {
         'task': 'threatapp.tasks.periodic_fetch_and_store',  # Full path to the task
-        'schedule': crontab(minute='*/2'),  # Every 10 minutes
+        'schedule': crontab(minute='*/1'),  # Every 10 minutes
     },
 }

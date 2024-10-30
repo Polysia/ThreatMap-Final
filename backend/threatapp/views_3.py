@@ -3,12 +3,14 @@ import xml.etree.ElementTree as ET
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from datetime import datetime, timedelta
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
-@api_view(['GET'])
-def threat_data_view(request):
+#@api_view(['GET'])
+def threat_data_view(request=None):
     # Calculate the current date and 7 days before
     end_date = datetime.now().strftime('%Y-%m-%d')  # Current date
-    start_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')  # 7 days ago
+    start_date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')  # 7 days ago
 
     # Fetch the XML data from the API
     url = f"https://isc.sans.edu/api/threatfeeds/perday/{start_date}/{end_date}"
@@ -30,6 +32,16 @@ def threat_data_view(request):
             "date": date,
             "TotalAttacks": total_attacks
         })
+        
+        # Send WebSocket update to the 'daily_threat_updates' group
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'daily_threat_updates',  # Group name for DailyThreatConsumer
+        {
+            'type': 'send_daily_threat_update',
+            'threat_data': data
+        }
+    )
 
     # Return the data as a JSON response
     return Response(data)

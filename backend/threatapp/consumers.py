@@ -9,7 +9,7 @@ class ThreatConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.channel_layer.group_add('threat_updates', self.channel_name)  # Adds the WebSocket to a group
 
-        ''' # **Send older threat data from MongoDB to the connected client**
+        '''# **Send older threat data from MongoDB to the connected client**
         from pymongo import MongoClient
         client = MongoClient('mongodb://localhost:27017/')  # MongoDB connection
         db = client['threatdata']  # Your MongoDB database name
@@ -48,3 +48,27 @@ def push_threat_update(threat_info):
             'threat_data': threat_info
         }
     )
+
+
+
+class DailyThreatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        # Define a group name for views_3.py WebSocket connection
+        self.group_name = 'daily_threat_updates'
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+
+    async def send_daily_threat_update(self, event):
+        threat_data = event['threat_data']
+        await self.send(text_data=json.dumps({
+            'daily_threat_data': threat_data
+        }))

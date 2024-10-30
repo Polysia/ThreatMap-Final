@@ -2,10 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
+ 
 const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
-  const mapRef = useRef(null); // Store the Leaflet map instance
-
+  const mapRef = useRef(null);
+  const svgLayerRef = useRef(null);
+ 
   useEffect(() => {
     // Initialize the map and store it in mapRef
     const map = L.map('map', {
@@ -17,12 +18,12 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
       maxBounds: [[-90, -180], [90, 180]],
       maxBoundsViscosity: 1.0,
     }).setView([40, 0], 1.5);
-
-    mapRef.current = map; // Store map instance
-
+ 
+    mapRef.current = map;
+ 
     map.createPane('backgroundPane');
     map.getPane('backgroundPane').style.zIndex = 100;
-
+ 
     // Add background rectangle to map
     L.rectangle([[-90, -180], [90, 180]], {
       color: '#000000',
@@ -30,7 +31,7 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
       fillOpacity: 1,
       pane: 'backgroundPane',
     }).addTo(map);
-
+ 
     // Load GeoJSON for countries
     fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
       .then((response) => response.json())
@@ -66,53 +67,26 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
           },
         }).addTo(map);
       });
-
-    const svgLayer = d3.select(map.getPanes().overlayPane).append('svg'),
-    g = svgLayer.append('g').attr('class', 'leaflet-zoom-hide');
-
-    let currentIndex = 0;
-
+ 
+    const svgLayer = d3.select(map.getPanes().overlayPane).append('svg');
+    const g = svgLayer.append('g').attr('class', 'leaflet-zoom-hide');
+ 
     function projectPoint(latlng) {
       const point = map.latLngToLayerPoint(new L.LatLng(latlng[0], latlng[1]));
       return [point.x, point.y];
     }
-
-    function createGradient(id, color) {
-      const svgDefs = svgLayer.append('defs');
-
-      const radialGradient = svgDefs.append('radialGradient')
-        .attr('id', id)
-        .attr('cx', '50%')
-        .attr('cy', '50%')
-        .attr('r', '50%');
-
-      radialGradient.append('stop')
-        .attr('offset', '0%')
-        .attr('stop-color', color)
-        .attr('stop-opacity', 1);
-
-      radialGradient.append('stop')
-        .attr('offset', '100%')
-        .attr('stop-color', color)
-        .attr('stop-opacity', 0);
-    }
-
-    function showNextAttack(attackData) {
-      if (currentIndex >= attackData.length) {
-        currentIndex = 0;
-      }
-
-      const attack = attackData[currentIndex++];
+ 
+    function showNextAttack(attack) {
       const source = projectPoint(attack.source);
       const destination = projectPoint(attack.destination);
-
+ 
       const midPoint = [
         (source[0] + destination[0]) / 2 + 100,
         (source[1] + destination[1]) / 2,
       ];
-
+ 
       let lineColor;
-      switch (attack.threatType) {
+      switch (attack.Category) {
         case 'malware':
           lineColor = 'red';
           break;
@@ -120,18 +94,38 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
           lineColor = 'purple';
           break;
         case 'exploit':
-          lineColor = 'yellow';
+          lineColor = 'white';
           break;
         default:
-          lineColor = 'white';
+          lineColor = 'yellow';
       }
-
+ 
       const lineGenerator = d3.line()
         .curve(d3.curveBundle.beta(1))
         .x((d) => d[0])
         .y((d) => d[1]);
-
-      g.append('path')
+ 
+      function createGradient(id, color) {
+        const svgDefs = svgLayer.append('defs');
+ 
+        const radialGradient = svgDefs.append('radialGradient')
+          .attr('id', id)
+          .attr('cx', '50%')
+          .attr('cy', '50%')
+          .attr('r', '50%');
+ 
+        radialGradient.append('stop')
+          .attr('offset', '0%')
+          .attr('stop-color', color)
+          .attr('stop-opacity', 1);
+ 
+        radialGradient.append('stop')
+          .attr('offset', '100%')
+          .attr('stop-color', color)
+          .attr('stop-opacity', 0);
+      }
+ 
+      const path = g.append('path')
         .datum([source, midPoint, destination])
         .attr('class', 'attack-line')
         .attr('d', lineGenerator)
@@ -148,9 +142,10 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
         .ease(d3.easeLinear)
         .attr('stroke-dashoffset', 0)
         .on('start', function () {
-          const gradientId = `fadeGradient-${currentIndex}`;
+          const gradientId = `fadeGradient-${Math.random()}`;
           createGradient(gradientId, lineColor);
-          g.append('circle')
+ 
+          const sourceSpot = g.append('circle')
             .attr('cx', source[0])
             .attr('cy', source[1])
             .attr('r', 5)
@@ -168,9 +163,10 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
             .remove();
         })
         .on('end', function () {
-          const gradientId = `fadeGradient-${currentIndex}-end`;
+          const gradientId = `fadeGradient-${Math.random()}-end`;
           createGradient(gradientId, lineColor);
-          g.append('circle')
+ 
+          const destinationSpot = g.append('circle')
             .attr('cx', destination[0])
             .attr('cy', destination[1])
             .attr('r', 5)
@@ -184,53 +180,64 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
             .transition()
             .duration(500)
             .attr('r', 0)
-            .attr('opacity, 0')
+            .attr('opacity', 0)
             .remove();
+ 
           d3.select(this)
             .transition()
             .duration(2000)
             .ease(d3.easeLinear)
             .attr('stroke-dashoffset', -this.getTotalLength())
             .remove();
-
-          showNextAttack(attackData);
+ 
+          const attackInfo = `${attack.source_Name} ➔ ${attack.Destination_Name} (${attack.Threat_Name.join(', ')})`;
+          d3.select('#activeAttacksList').append('li')
+            .text(attackInfo)
+            .transition()
+            .duration(attackSpeed)
+            .remove();
         });
-
-      const attackInfo = `${attack.sourceName} ➔ ${attack.destinationName} (${attack.threatType})`;
-
-      d3.select('#activeAttacksList').append('li').text(attackInfo).transition().duration(attackSpeed).remove();
     }
-
-    function reset(attackData) {
+ 
+    function reset(attack) {
       const bounds = map.getBounds(),
         topLeft = map.latLngToLayerPoint(bounds.getNorthWest()),
         bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
-
+ 
       svgLayer
         .attr('width', bottomRight.x - topLeft.x)
         .attr('height', bottomRight.y - topLeft.y)
         .style('left', `${topLeft.x}px`)
         .style('top', `${topLeft.y}px`);
-
+ 
       g.attr('transform', `translate(${-topLeft.x}, ${-topLeft.y})`);
-
-      showNextAttack(attackData);
+ 
+      showNextAttack(attack);
     }
-
-    fetch('/attackData.json')
-      .then((response) => response.json())
-      .then((attackData) => {
-        map.on('moveend', () => reset(attackData));
-        reset(attackData);
-      });
-
+ 
+    const socket = new WebSocket('ws://localhost:8000/ws/threats/');
+    socket.onmessage = (event) => {
+      const newData = JSON.parse(event.data);
+      const threatData = newData.threat_data;
+ 
+      const attackData = {
+        source: threatData.source,
+        source_Name: threatData.source_Name,
+        destination: threatData.destination,
+        Destination_Name: threatData.Destination_Name,
+        Category: threatData.Category,
+        Threat_Name: threatData.Threat_Name,
+      };
+      reset(attackData);
+    };
+ 
     return () => {
+      socket.close();
       map.off('moveend');
       map.remove();
     };
   }, [attackSpeed]);
-
-  // Adjust map size on sidebar toggle
+ 
   useEffect(() => {
     if (mapRef.current) {
       setTimeout(() => {
@@ -238,8 +245,8 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
       }, 400);
     }
   }, [isSidebarOpen]);
-
+ 
   return <div id="map" className={isSidebarOpen ? 'map-shrink' : 'map-expand'}></div>;
 };
-
+ 
 export default MapComponent;

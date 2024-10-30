@@ -11,7 +11,7 @@ import numpy as np
 # MongoDB Connection
 client = MongoClient('mongodb://localhost:27017/')  # Adjust MongoDB connection string if necessary
 db = client['threatdata']  # Your MongoDB database name
-threat_data = db['new2']  # Your MongoDB collection name
+threat_data = db['new']  # Your MongoDB collection name
 config = db['config']  # A separate collection to store configurations like last checked time
 
 # AlienVault API details
@@ -26,8 +26,8 @@ ALIENVAULT_HEADERS = {
 CROWDSEC_API_URL = "https://cti.api.crowdsec.net/v2/smoke/"
 CROWDSEC_HEADERS = {
     "Content-Type": "application/json",
-    #"x-api-key": "pBs9iBKd3F4pTXH55LlagabqOUiHpAqy6x4DG5uh"  # CrowdSec API key
-    "x-api-key": 'FnNp1xLZhe1FJREmscGdw6N97Fc5Gtri1ZG5NFfB'
+    "x-api-key": "pBs9iBKd3F4pTXH55LlagabqOUiHpAqy6x4DG5uh"  # CrowdSec API key
+    #"x-api-key": 'FnNp1xLZhe1FJREmscGdw6N97Fc5Gtri1ZG5NFfB'
 }
 
 # Configuration: Define how often to fetch new data (e.g., once every 10 minutes)
@@ -120,12 +120,26 @@ def fetch_and_store_threat_data(request=None):
 
                 # If the record does not exist, add it to the list to be inserted
                 if not existing_record:
-                # Create a threat record to store in MongoDB for each attacked country
+                    # Fetch the latitude and longitude using the country code
+                    try:
+                        restcountries_response = requests.get(f"https://restcountries.com/v3.1/alpha/{attacked_country}")
+                        if restcountries_response.ok:
+                            restcountries_data = restcountries_response.json()
+                            country_coordinates = restcountries_data[0].get("latlng", [None, None])
+                            dest_lat, dest_lon = country_coordinates[0], country_coordinates[1]
+                        else:
+                            print(f"RestCountries Error for {attacked_country}: {restcountries_response.status_code}")
+                            dest_lat, dest_lon = None, None  # Fallback if the API call fails
+                    except Exception as e:
+                        print(f"RestCountries API Exception: {e}")
+                        dest_lat, dest_lon = None, None  # Fallback in case of an exception
+                    # Create a threat record to store in MongoDB for each attacked country
                     threat_info = {
                         'ip_address': ip,
                         'source_Name': source_country,
                         'source': [country_latitude, country_longitude],
-                        'Destination_Name': attacked_country,
+                        'Destination_Name': attacked_country, 
+                        'destination' : [dest_lat, dest_lon],
                         'reported': reported,
                         'Category': reputation,
                         'Threat_Name': behaviors,
