@@ -1,33 +1,33 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
+import { ThemeContext } from './ThemeContext';
 
 const BoxContainer = styled.div`
   border: 2px solid #3478f6;  
   margin-bottom: 20px;
   padding: 5px;
-  background-color: #000;  
+  background-color: ${({ theme }) => theme === 'dark' ? '#000' : '#fff'};  
   transition: background-color 0.3s, box-shadow 0.3s;
-  
-  &:hover {
-    background-color: #1a2f40;  
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); 
-    
-  }
 
-  `;
+  &:hover {
+    background-color: ${({ theme }) => theme === 'dark' ? '#1a2f40' : '#e3f2fd'};  
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); 
+  }
+`;
 
 const Title = styled.h3`
   border-bottom: 2.5px solid burlywood;  
   padding-bottom: 9px;
-  color: white;  
+  color: ${({ theme }) => theme === 'dark' ? 'white' : 'black'};  
   text-align:center;
+  font-size:1em;
 `;
 
 const ListItem = styled.div`
   display: flex;
   align-items: center;
   margin: 15px 1px;
-  color: white;  
+  color: ${({ theme }) => theme === 'dark' ? 'white' : 'black'};  
 `;
 
 const ColorIndicator = styled.span`
@@ -48,11 +48,13 @@ const Flag = styled.img`
 `;
 
 const StatBox = ({ title, items }) => {
+  const { theme } = useContext(ThemeContext); 
+
   return (
-    <BoxContainer>
-      <Title>{title}</Title>
+    <BoxContainer theme={theme}>
+      <Title theme={theme}>{title}</Title>
       {items.map((item, index) => (
-        <ListItem key={index}>
+        <ListItem key={index} theme={theme}>
           {item.color && <ColorIndicator color={item.color} />}
           {item.flag && <Flag src={item.flag} alt={`${item.name} flag`} />}
           {item.name}
