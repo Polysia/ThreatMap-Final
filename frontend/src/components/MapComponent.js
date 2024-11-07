@@ -22,7 +22,7 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
     map.createPane('backgroundPane');
     map.getPane('backgroundPane').style.zIndex = 100;
 
-    L.rectangle([[-90, -250], [200, 215]], {
+    L.rectangle([[-90, -250], [200, 220]], {
       color: '000',
       fillColor: 'var(--map-background-color)',
       fillOpacity: 1,
