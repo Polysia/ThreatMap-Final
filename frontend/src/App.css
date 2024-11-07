@@ -257,8 +257,8 @@ body.light-mode {
   position: relative;
   width: 150px;
   height: 150px;
-  border-radius: 50%;
-  background: linear-gradient(45deg,transparent,transparent 40%, #e5f403);
+  border-radius: 70%;
+  background: linear-gradient(45deg,transparent,transparent 40%, blue);
   animation: animate 2s linear infinite;
 }
 @keyframes animate
@@ -266,12 +266,11 @@ body.light-mode {
   0%
   {
     transform: rotate(0deg);
-    filter: hue-rotate(0deg);
   }
   100%
   {
     transform: rotate(360deg);
-    filter: hue-rotate(360deg);
+
   }
 }
 .loader:before
@@ -294,9 +293,9 @@ body.light-mode {
   left: 0px;
   right: 0px;
   bottom: 0px;
-  background: linear-gradient(45deg,transparent,transparent 40%, #e5f403);
+  background: linear-gradient(45deg,transparent,transparent 50%, #000);
   border-radius: 50%;
   z-index: 1000;
   z-index: 1;
-  filter: blur(30px);
+  filter: blur(70px);
 }
