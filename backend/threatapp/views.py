@@ -9,28 +9,29 @@ from rest_framework.decorators import api_view
 from pymongo import MongoClient
 from datetime import datetime, timedelta
 from django.http import JsonResponse  # Import JsonResponse to return data in JSON format
+from .consumers import *
 import traceback, pytz
 
 # MongoDB Connection
 client = MongoClient('mongodb://localhost:27017/')  # Replace with your MongoDB connection string if necessary
 db = client['threatdata']  # Database name
-threat_data = db['threatapp_threat']  # Collection name
+threat_data = db['top5_attack_data']  # Collection name
 
 
-@api_view(['GET'])
-def fetch_threat_data(request):
+#@api_view(['GET'])
+def fetch_top5_country_data(request=None):
     
     # Get current date and time
     current_time = datetime.utcnow() - timedelta(days=1)  # Current UTC time (ISO format)
     past_time = current_time - timedelta(days=1)  # Two days ago
-    print(current_time)
+    #print(current_time)
     
     # Convert to the format required by the API (e.g., "2024-09-20T10:22:57Z")
     date_end = current_time.strftime('%Y-%m-%dT%H:%M:%SZ')
     date_start =  past_time.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     # cloudflare api and authentication details
-    api_url ="https://api.cloudflare.com/client/v4/radar/attacks/layer7/top/locations/origin"
+    api_url ="https://api.cloudflare.com/client/v4/radar/attacks/layer7/top/locations/target"
     headers = {
         "Content-Type": "application/json",
         "X-Auth-Email": "sanjaykmrcs@gmail.com",  
@@ -66,30 +67,25 @@ def fetch_threat_data(request):
             return Response({"error": "No threat data found in the API response"}, status=400)
         
         for country in top_attacked:
-            print(country)
+            #print(country)
             country_data = {
-                'origin_country_alpha2': country['originCountryAlpha2'],
-                'origin_country_name': country['originCountryName'],
+                'target_country_alpha2': country['targetCountryAlpha2'],
+                'target_country_name': country['targetCountryName'],
                 'value': country['value'],
                 'rank': country['rank'],
-                'date' : current_time,
+                #'date' : datetime.now()
             }
-            print(country_data)
+            #print(country_data)
             
-             # Check if the record already exists based on 'origin_country_alpha2'
-            existing_record = threat_data.find_one({'origin_country_alpha2': country['originCountryAlpha2']})
-            if not existing_record:
-                countryattacked_to_insert.append(country_data)
-            else:
-                # If the record exists, update it with the new data
-                threat_data.update_one(
-                    {'origin_country_alpha2': country['originCountryAlpha2']},
-                    {'$set': country_data}
-                )
+            
+            countryattacked_to_insert.append(country_data)
+            push_top5_country_update(country_data)
+            
                 
         if countryattacked_to_insert:
             threat_data.insert_many(countryattacked_to_insert)
-            return Response({"message": "Data successfully inserted into MongoDB."}, status=200)
+            #push_top5_country_update(countryattacked_to_insert)
+            #return Response({"message": "Data successfully inserted into MongoDB."}, status=200)
         
         else:
             return Response({"message": "No new data to insert into MongoDB."}, status=200)

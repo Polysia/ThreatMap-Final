@@ -72,3 +72,92 @@ class DailyThreatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'daily_threat_data': threat_data
         }))
+        
+        
+        
+class IncidentConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        # When a client connects to the WebSocket
+        await self.accept()
+        await self.channel_layer.group_add('incident_updates', self.channel_name)  # Adds the WebSocket to a group
+
+    async def disconnect(self, close_code):
+        # When a client disconnects
+        await self.channel_layer.group_discard('incident_updates', self.channel_name)
+
+    async def receive(self, text_data):
+        pass  # You can handle incoming WebSocket messages here if needed
+
+    async def send_incident_update(self, event):
+        # Send threat data to the WebSocket
+        incident_data = event['threat_data']
+        await self.send(text_data=json.dumps({
+            'incident_data': incident_data  # Send threat data as JSON to frontend
+        }))
+
+def push_incident_update(incident):
+    """Send a WebSocket message to all clients with new threat data."""
+    incident.pop('_id', None)
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'incident_updates',  # The group name (all WebSocket clients in this group will receive the message)
+        {
+            'type': 'send_incident_update',  # This maps to the 'send_threat_update' method in ThreatConsumer
+            'threat_data': incident
+        }
+    )
+    
+    
+    
+class Top5CountryConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+        await self.channel_layer.group_add('top5_country_updates', self.channel_name)
+        
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard('top5_country_updates', self.channel_name)
+        
+    async def send_top5_country_update(self, event):
+        data = event['data']
+        await self.send(text_data=json.dumps({
+            'data': data
+        }))
+        
+def push_top5_country_update(data):
+    """Send a WebSocket message to all clients with new data."""
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'top5_country_updates',   # Group name
+        {
+            'type': 'send_top5_country_update',  # Event type
+            'data': data
+        }
+    )
+    
+    
+    
+    
+class Top5IndustryConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+        await self.channel_layer.group_add('top5_industry_updates', self.channel_name)
+        
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard('top5_industry_updates', self.channel_name)
+        
+    async def send_top5_industry_update(self, event):
+        data = event['data']
+        await self.send(text_data=json.dumps({
+            'data': data
+        }))
+        
+def push_top5_industry_update(data):
+    """Send a WebSocket message to all clients with new data."""
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'top5_industry_updates',   # Group name
+        {
+            'type': 'send_top5_industry_update',  # Event type
+            'data': data
+        }
+    )

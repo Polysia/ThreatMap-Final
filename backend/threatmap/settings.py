@@ -146,4 +146,6 @@ CELERY_ACCEPT_CONTENT = ['json']  # Celery will accept JSON messages
 CELERY_TASK_SERIALIZER = 'json'  # Celery will serialize tasks in JSON format
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Redis will store task results
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True  # New setting for Celery 6.0 and above
+CELERY_TIMEZONE = 'UTC'
+CELERY_ENABLE_UTC = True
 

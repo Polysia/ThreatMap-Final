@@ -7,7 +7,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 #@api_view(['GET'])
-def threat_data_view(request=None):
+def fetch_daily_data(request=None):
     # Calculate the current date and 7 days before
     end_date = datetime.now().strftime('%Y-%m-%d')  # Current date
     start_date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')  # 7 days ago
