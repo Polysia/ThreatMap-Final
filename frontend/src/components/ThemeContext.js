@@ -4,6 +4,7 @@ export const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState('dark');
+  const [showIncidents, setShowIncidents] = useState(true); // default to true
 
   useEffect(() => {
     document.body.className = theme + '-mode';
@@ -12,11 +13,15 @@ export const ThemeProvider = ({ children }) => {
   const toggleTheme = () => {
     setTimeout(() => {
       setTheme(theme === 'dark' ? 'light' : 'dark');
-    }, 400); 
+    }, 400);
+  };
+
+  const toggleIncidents = () => {
+    setShowIncidents(!showIncidents);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, showIncidents, toggleIncidents }}>
       {children}
     </ThemeContext.Provider>
   );
