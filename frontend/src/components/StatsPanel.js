@@ -62,12 +62,12 @@ const StatsPanel = ({ isSidebarOpen, toggleSidebar }) => {
     nationSocket.onmessage = (event) => {
       const nationMessage = JSON.parse(event.data);
       const nationData = nationMessage.data;  
-      console.log('Nation data received:', nationData);  // Debugging log
+      console.log('Nation data received:', nationData);  
       setTargetedNations(prevNations => {
         const updatedNations = [
           ...prevNations,
           {
-            name: nationData.target_country_name || 'No Name Provided',  // Fallback
+            name: nationData.target_country_name || 'No Name Provided', 
             value: nationData.value,
             color: '#FF6347',
             flag: `https://www.countryflags.io/${nationData.target_country_alpha2}/flat/32.png`
@@ -80,13 +80,13 @@ const StatsPanel = ({ isSidebarOpen, toggleSidebar }) => {
     const industrySocket = new WebSocket('ws://localhost:8000/ws/top5_industry/');
     industrySocket.onmessage = (event) => {
       const industryMessage = JSON.parse(event.data);
-      const industryData = industryMessage.data;  // Accessing the nested 'data' object
-      console.log('Industry data received:', industryData);  // Debugging log
+      const industryData = industryMessage.data;  
+      console.log('Industry data received:', industryData);  
       setTargetedIndustries(prevIndustries => {
         const updatedIndustries = [
           ...prevIndustries,
           {
-            name: industryData.industry_name || 'No Industry Name',  // Fallback
+            name: industryData.industry_name || 'No Industry Name', 
             value: industryData.value,
             color: '#87CEEB'
           }
