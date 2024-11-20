@@ -5,10 +5,8 @@ import 'leaflet/dist/leaflet.css';
  
 const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
   const mapRef = useRef(null);
-  const svgLayerRef = useRef(null);
- 
+
   useEffect(() => {
-    // Initialize the map and store it in mapRef
     const map = L.map('map', {
       zoomControl: false,
       scrollWheelZoom: false,
@@ -24,42 +22,40 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
     map.createPane('backgroundPane');
     map.getPane('backgroundPane').style.zIndex = 100;
  
-    // Add background rectangle to map
-    L.rectangle([[-90, -180], [90, 180]], {
-      color: '#000000',
-      fillColor: '#000000',
+    L.rectangle([[-90, -250], [200, 220]], {
+      color: '000',
+      fillColor: 'var(--map-background-color)',
       fillOpacity: 1,
       pane: 'backgroundPane',
     }).addTo(map);
  
-    // Load GeoJSON for countries
     fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
       .then((response) => response.json())
       .then((data) => {
         L.geoJSON(data, {
           style: {
-            color: '#4A90E2',
+            color: 'var(--map-line-color)',
             weight: 0.5,
-            fillColor: '#000000',
+            fillColor: 'var(--map-fill-color)',
             fillOpacity: 0.5,
           },
           onEachFeature: function (feature, layer) {
             layer.on({
               mouseover: function () {
                 layer.setStyle({
-                  color: '#4A90E2',
+                  color: 'var(--map-line-color)',
                   weight: 1.5,
                   dashArray: '5, 5',
-                  fillColor: '#4A90E2',
+                  fillColor: 'var(--map-line-color)',
                   fillOpacity: 0.5,
                 });
               },
               mouseout: function () {
                 layer.setStyle({
-                  color: '#4A90E2',
+                  color:  'var(--map-line-color)',
                   weight: 0.5,
                   dashArray: '',
-                  fillColor: '#000000',
+                  fillColor: 'var(--map-fill-color)',
                   fillOpacity: 0.5,
                 });
               },
@@ -88,17 +84,17 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
       let lineColor;
       switch (attack.Category) {
         case 'malware':
-          lineColor = 'red';
+          lineColor = 'var(--attack-line-color-malware)';
           break;
-        case 'phishing':
-          lineColor = 'purple';
-          break;
-        case 'exploit':
-          lineColor = 'white';
-          break;
-        default:
-          lineColor = 'yellow';
-      }
+          case 'phishing':
+            lineColor = 'var(--attack-line-color-phishing)';
+            break;
+          case 'exploit':
+            lineColor = 'var(--attack-line-color-exploit)';
+            break;
+          default:
+            lineColor = 'var(--attack-line-color-default)';
+        }
  
       const lineGenerator = d3.line()
         .curve(d3.curveBundle.beta(1))
@@ -125,7 +121,7 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
           .attr('stop-opacity', 0);
       }
  
-      const path = g.append('path')
+      g.append('path')
         .datum([source, midPoint, destination])
         .attr('class', 'attack-line')
         .attr('d', lineGenerator)
@@ -145,7 +141,7 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
           const gradientId = `fadeGradient-${Math.random()}`;
           createGradient(gradientId, lineColor);
  
-          const sourceSpot = g.append('circle')
+          g.append('circle')
             .attr('cx', source[0])
             .attr('cy', source[1])
             .attr('r', 5)
@@ -166,7 +162,7 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
           const gradientId = `fadeGradient-${Math.random()}-end`;
           createGradient(gradientId, lineColor);
  
-          const destinationSpot = g.append('circle')
+          g.append('circle')
             .attr('cx', destination[0])
             .attr('cy', destination[1])
             .attr('r', 5)
@@ -222,11 +218,11 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
  
       const attackData = {
         source: threatData.source,
-        source_Name: threatData.source_Name, // Ensure the correct property name
-        destination: threatData.destination, // Ensure destination has a correct value
-        Destination_Name: threatData.Destination_Name, // Ensure the correct property name
-        Category: threatData.Category, // Use Category directly
-        Threat_Name: threatData.Threat_Name, // Keep the array as is
+        source_Name: threatData.source_Name, 
+        destination: threatData.destination, 
+        Destination_Name: threatData.Destination_Name, 
+        Category: threatData.Category, 
+        Threat_Name: threatData.Threat_Name, 
       };
       reset(attackData);
     };
