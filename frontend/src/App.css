@@ -10,7 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 825px;
+ transition: transform 0.3s ease, color 0.3s ease; 
 }
 
 .theme-toggle:hover {
@@ -18,7 +18,7 @@
 }
 
 :root {
-  --background-color: #000; 
+  --background-color: #121212; 
   --text-color: #fff;      
 }
 
@@ -60,6 +60,7 @@ html, body {
   align-items: center;
   overflow: hidden;
   margin-top: 110px;
+  z-index: 10;
   transition: margin-right 0.4s ease-in-out;
 }
 
@@ -145,10 +146,12 @@ body.light-mode {
 }
 
 .logo {
-  height: 42px;
-  width: 48px;
+  height: 44px;
+  width: 47px;
   margin-right: 600px;
   margin-left: -19px;
+  margin-bottom: -6px;
+  margin-top: -5px;
 }
 
 .title {
@@ -160,7 +163,7 @@ body.light-mode {
 
 #leftSidebar {
   position: fixed;
-  top: 57px;
+  top: 49px;
   left: 0;
   width: 230px;
   height: calc(100vh - 60px);
@@ -172,7 +175,7 @@ body.light-mode {
   align-items: start;
   z-index: 1500;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-  border-right: 1px solid var(--border-color);
+  border-right: 1.5px solid var(--border-color);
 }
 
 #leftSidebar h2, #leftSidebar ul {
@@ -298,4 +301,34 @@ body.light-mode {
   z-index: 1000;
   z-index: 1;
   filter: blur(70px);
+}
+:root {
+  --icon-color-dark: #ffffff;  
+  --icon-color-light: #000000; 
+}
+
+body.light-mode {
+  --icon-color: var(--icon-color-light);
+}
+
+body.dark-mode {
+  --icon-color: var(--icon-color-dark);
+}
+
+.incident-toggle {
+  z-index: 100;
+  pointer-events: auto;
+  background: none;
+  border: none;
+  color: var(--icon-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  margin-left: 790px; 
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.incident-toggle:hover {
+  transform: scale(1.3);
 }
