@@ -109,13 +109,13 @@ const Threatpanel = ({ handleSpeedChange, isSidebarOpen, toggleSidebar, activeAt
     }, [data]);
  
     return (
-<div id="leftSidebar">
-<h2>Threat Data</h2>
-<b>Recent Daily Attacks:</b>
+<div id="leftSidebar" className={theme}>
+<h2>THREAT DATA</h2>
+<b>RECENT DAILY ATTACKS</b>
 <div id="chart"></div>
 <ul id="threatList">
 <li>
-<b>Attack Speed:</b>
+<b>ATTACK SPEED</b>
 <div className="speed-controls fixed-controls">
 <button onClick={decreaseSpeed}>
 <FontAwesomeIcon icon={faMinus} />
@@ -127,11 +127,11 @@ const Threatpanel = ({ handleSpeedChange, isSidebarOpen, toggleSidebar, activeAt
 </div>
 </li>
 <li>
-<b>Active Attacks:</b>
+<b>ACTIVE ATTACKS</b>
 <ul id="activeAttacksList">
-                        {activeAttacks.map((attack, index) => (
+ {activeAttacks.map((attack, index) => (
 <li key={index}>
-                                {attack.sourceName} to {attack.destinationName} ({attack.threatType})
+    {attack.sourceName} to {attack.destinationName} ({attack.threatType})
 </li>
                         ))}
 </ul>
