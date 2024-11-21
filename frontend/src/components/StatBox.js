@@ -96,7 +96,7 @@ const StatBox = ({ title, items }) => {
   <Title theme={theme}>{title}</Title>
       {items.map((item, index) => (
 <ListItem key={index} theme={theme} onClick={() => handleItemClick(item)}>
-          {item.color && <ColorIndicator color={item.color} />}
+   {item.color && title !== "TARGETED NATIONS" && <ColorIndicator color={item.color} />}
           {item.flag && <Flag src={item.flag} alt={`${item.name} flag`} />}
 <span>{item.name || 'Unknown'}</span> 
 </ListItem>
