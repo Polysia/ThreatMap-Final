@@ -13,7 +13,7 @@ const PanelContainer = styled.div`
   position: fixed;
   right: ${props => (props.isOpen ? '0' : '-300px')}; 
   top: 0;
-  transition: right 0.4s ease-in-out;
+  transition: right 0.5s ease-in-out;
   z-index: 10;
 `;
  
