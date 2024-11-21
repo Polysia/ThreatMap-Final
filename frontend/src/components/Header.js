@@ -8,7 +8,6 @@ const Header = ({ onToggleIncidents }) => {
   return (
     <div className="header">
       <img src="/Polysia.png" alt="Logo" className="logo" />
-      <span className="title">THREATMAP LIVE ATTACK</span>
       <button onClick={onToggleIncidents} className="incident-toggle">
         <MdVisibility size={28} /> 
       </button>
