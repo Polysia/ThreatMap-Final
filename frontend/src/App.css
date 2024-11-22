@@ -142,7 +142,7 @@ body.light-mode {
   width: 100%;
   top: 0;
   z-index: 1000;
-  border-bottom: 3px solid red;
+  border-bottom: 3px solid #3478f6;
 }
 
 .logo {
@@ -349,4 +349,49 @@ body.dark-mode {
 
 .incident-toggle:hover {
   transform: scale(1.3);
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.about-us-box {
+  margin-left: 400px; 
+  padding: 0.5px 20px;
+  background-color: #3495f6ee; 
+  border-radius: 5px;
+  border: 1px solid #555; 
+}
+
+.about-us {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 20px; 
+}
+
+.about-us-box:hover {
+  background-color: rgb(50, 192, 205); 
+}
+:root {
+  --icon-color: #ececec;  
+  --icon-hover-color: #3495f6; 
+}
+
+body.light-mode {
+  --icon-color: #4a4a4a;  
+  --icon-hover-color: #3495f6;
+}
+.social-icon {
+  background: none;
+  border: none;
+  color: var(--icon-color); 
+  cursor: pointer;
+  margin-left: 10px;
+  transition: color 0.3s ease; 
+}
+
+.social-icon:hover {
+  color: var(--icon-hover-color); 
 }
