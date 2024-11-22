@@ -52,33 +52,33 @@ const QuoteBox = styled.div`
 }
 `;
 
+const industryIcons = {
+    "Adult Entertainment": "/adult_entertainment.jpg",
+    "Computer Software": "/computer_software.jpg",
+    "Cryptocurrency": "/cryptocurrency.jpg",
+    "Gambling and Casinos": "/gambling_and_casinos.jpg",
+    "Information Tech and Services": "/info_tech_and_services.jpg",
+    "Internet": "/internet.jpg",
+    "Retail": "/retail.jpg",
+    "Telecommunication": "/telecommunications.jpg"
+};
+
 const StatsPanel = ({ isSidebarOpen, toggleSidebar }) => {
   const { theme } = useContext(ThemeContext);
-  const [targetedIndustries, setTargetedIndustries] = useState([
-    { name: "Adult Entertainment", icon: '/adult_entertainment.jpg', value: 120 },
-    { name: "Computer Software", icon: '/computer_software.jpg', value: 200 },
-    { name: "Cryptocurrency", icon: '/cryptocurrency.jpg', value: 150 },
-    { name: "Gambling and Casinos", icon: '/gambling_and_casinos.jpg', value: 90 },
-    { name: "Information Tech and Services", icon: '/info_tech_and_services.jpg', value: 180 },
-    { name: "Internet", icon: '/internet.jpg', value: 210 },
-    { name: "Retail", icon: '/retail.jpg', value: 160 },
-    { name: "Telecommunication", icon: '/telecommunications.jpg', value: 140 }
-  ]);
+  const [targetedIndustries, setTargetedIndustries] = useState([]);
 
   useEffect(() => {
     const industrySocket = new WebSocket('ws://localhost:8000/ws/top5_industry/');
     industrySocket.onmessage = (event) => {
       const industryMessage = JSON.parse(event.data);
-      const industryData = industryMessage.data.map(industry => ({
+      const topIndustries = industryMessage.data.map(industry => ({
         name: industry.industry_name,
         value: industry.value,
-        icon: `/icons/${industry.industry_name.toLowerCase().replace(/ /g, '_')}.jpg`  
-      }));
-      setTargetedIndustries(industryData);  
+        icon: industryIcons[industry.industry_name]  
+      })).slice(0, 5);  
+      setTargetedIndustries(topIndustries);
     };
-    industrySocket.onclose = () => {
-      console.log('Industries WebSocket closed');
-    };
+    industrySocket.onclose = () => console.log('Industries WebSocket closed');
 
     return () => {
       industrySocket.close();
