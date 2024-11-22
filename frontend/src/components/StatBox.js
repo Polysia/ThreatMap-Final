@@ -55,7 +55,11 @@ const ModalHeader = styled.h2`
   color: #000;
   margin-bottom: 10px; 
   `;
-
+  const Icon = styled.img`
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+`;
   const preventionDetails = {
     PHISHING: {
       title: "PHISHING PREVENTION",
@@ -90,13 +94,14 @@ const StatBox = ({ title, items }) => {
   const handleItemClick = item => {
     setSelectedItem(preventionDetails[item.name]);
   };
-
+  const defaultIcon = '/default.jpg';
   return (
  <BoxContainer theme={theme}>
   <Title theme={theme}>{title}</Title>
       {items.map((item, index) => (
 <ListItem key={index} theme={theme} onClick={() => handleItemClick(item)}>
    {item.color && title !== "TARGETED NATIONS" && <ColorIndicator color={item.color} />}
+   <Icon src={item.icon || defaultIcon} alt={`${item.name}`} />
           {item.flag && <Flag src={item.flag} alt={`${item.name} flag`} />}
 <span>{item.name || 'Unknown'}</span> 
 </ListItem>
