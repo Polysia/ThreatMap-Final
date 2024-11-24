@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { ThemeContext } from './ThemeContext';
 import { MdLightMode, MdDarkMode, MdVisibility } from 'react-icons/md';
-import { FaLinkedin, FaInstagram, FaYoutube } from 'react-icons/fa'; 
+import { FaLinkedin, FaInstagram, FaYoutube } from 'react-icons/fa';
 
 const Header = ({ onToggleIncidents }) => {
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -16,19 +16,18 @@ const Header = ({ onToggleIncidents }) => {
 
   return (
     <header className="header">
-      <img src="/Polysia.png" alt="Logo" className="logo" />
-      <div className="header-actions">
+      <div className="header-center">
         <button onClick={onToggleIncidents} className="incident-toggle" title="Show Incidents">
           <MdVisibility size={28} />
         </button>
         <button onClick={toggleTheme} className="theme-toggle" title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}>
           {theme === 'dark' ? <MdLightMode size={28} /> : <MdDarkMode size={28} />}
         </button>
-        <div className="about-us-box">
-          <button onClick={handleAboutUsClick} className="about-us" title="About Us">
-            ABOUT US
-          </button>
-        </div>
+      </div>
+      <div className="header-right">
+        <button onClick={handleAboutUsClick} className="about-us" title="About Us">
+          ABOUT US
+        </button>
         <button onClick={() => handleRedirect('https://www.linkedin.com/in/polysia-tech/')} className="social-icon">
           <FaLinkedin size={28} />
         </button>
@@ -44,3 +43,4 @@ const Header = ({ onToggleIncidents }) => {
 };
 
 export default Header;
+
