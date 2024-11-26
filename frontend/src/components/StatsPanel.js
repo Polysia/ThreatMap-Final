@@ -43,7 +43,7 @@ const QuoteBox = styled.div`
   border: 1.9px solid #3478f6;
   font-size: 0.92em;
   font-weight: bold;
-  margin-top: 51px;
+  margin-top: 62px;
   z-index: 999;
 
 &:hover {
