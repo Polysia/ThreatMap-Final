@@ -16,6 +16,9 @@ const Header = ({ onToggleIncidents }) => {
 
   return (
     <header className="header">
+      <div className="header-left" style={{ flexGrow: 0, flexShrink: 0, marginRight: 'auto' }}>
+        <img src="/polysia.png" alt="Polysia Logo" style={{ height: '47px', marginLeft: '-20px' }} /> 
+      </div>
       <div className="header-center">
         <button onClick={onToggleIncidents} className="incident-toggle" title="Show Incidents">
           <MdVisibility size={28} />
@@ -43,4 +46,3 @@ const Header = ({ onToggleIncidents }) => {
 };
 
 export default Header;
-
