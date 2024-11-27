@@ -28,7 +28,7 @@ const Header = ({ onToggleIncidents }) => {
         </button>
       </div>
       <div className="header-right">
-        <button onClick={handleAboutUsClick} className="about-us" title="About Us">
+        <button onClick={handleAboutUsClick} className="about-us">
           ABOUT US
         </button>
         <button onClick={() => handleRedirect('https://www.linkedin.com/in/polysia-tech/')} className="social-icon">
