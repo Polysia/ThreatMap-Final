@@ -80,6 +80,23 @@ class IncidentConsumer(AsyncWebsocketConsumer):
         # When a client connects to the WebSocket
         await self.accept()
         await self.channel_layer.group_add('incident_updates', self.channel_name)  # Adds the WebSocket to a group
+        
+        
+        # # This will send the last data from database as soon as incident is connected to frontend
+        
+        # from pymongo import MongoClient
+        # client = MongoClient('mongodb://localhost:27017/')  # MongoDB connection
+        # db = client['threatdata']  # Your MongoDB database name
+        # threat_data = db['incidents2']  # Your MongoDB collection name
+        
+        # # Fetch old threat data from MongoDB
+        # older_data = list(threat_data.find({}, {'_id': 0,'id':0,'incidentlevel':0,'reportedby':0}).sort('_id', -1).limit(1))  # Fetch all data, excluding '_id'
+        
+        # # Send the older data to the connected WebSocket client
+        # if older_data:
+        #     await self.send(text_data=json.dumps({
+        #         'incident_data': older_data
+        #     }))
 
     async def disconnect(self, close_code):
         # When a client disconnects

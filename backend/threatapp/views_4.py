@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from .consumers import push_top5_industry_update
 from datetime import datetime, timedelta
  
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb://db:27017/')
 db = client['threatdata']  # Database name
 collection = db['top_attacked_industries']  # Change collection name for industry data
  
@@ -59,19 +59,28 @@ def top_attacked_industries(request=None):
                 'value': value
             })
  
-            if not existing_record:
-                industry_document = {
+            #if not existing_record:
+            # Prepare document to send to WebSocket
+            industry_document = {
                     'industry_name': industry_name,
                     'value': value,
                     'time': time.isoformat()
                 }
+                #new_data.append(industry_document)
+            
+            # Call WebSocket function regardless of whether the data is new or existing
+            push_top5_industry_update(industry_document)
+            
+            # Only add to new_data if it's not in the database
+            if not existing_record:
                 new_data.append(industry_document)
-                push_top5_industry_update(industry_document)
+                print("This is APPEND function ---New Top5_Industry data stored in MongoDB")
  
         # Insert new data if available
         if new_data:
             insert_result = collection.insert_many(new_data)
             inserted_ids = [str(inserted_id) for inserted_id in insert_result.inserted_ids]
+            print("This is INSERT_MANY function ---New Top5_Industry data stored in MongoDB")
             #push_top5_industry_update(new_data)
             return Response({"message": "Successful"}, status=201)
         else:

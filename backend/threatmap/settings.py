@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "channels",
     "django_celery_beat",
+    'corsheaders',
     
 ]
 
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = "threatmap.urls"
@@ -80,6 +82,9 @@ ASGI_APPLICATION = "threatmap.asgi.application"
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
     },
 }
 
@@ -99,6 +104,9 @@ DATABASES = {
     "default": {
         "ENGINE": "djongo",
         "NAME": "threatdata",
+        'CLIENT': {
+            'host': 'mongodb://db:27017/',  # Replace 'db' with your MongoDB container's name
+        },
     }
 } 
 
@@ -141,11 +149,14 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Celery settings
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # This is where Redis is running
+CELERY_BROKER_URL = 'redis://redis:6379/0'  # This is where Redis is running
 CELERY_ACCEPT_CONTENT = ['json']  # Celery will accept JSON messages
 CELERY_TASK_SERIALIZER = 'json'  # Celery will serialize tasks in JSON format
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Redis will store task results
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'  # Redis will store task results
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True  # New setting for Celery 6.0 and above
 CELERY_TIMEZONE = 'UTC'
 CELERY_ENABLE_UTC = True
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Frontend URL
+]

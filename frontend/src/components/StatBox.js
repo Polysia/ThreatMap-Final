@@ -1,3 +1,216 @@
+// import React, { useContext } from 'react';
+// import styled from 'styled-components';
+// import { ThemeContext } from './ThemeContext';
+
+// const BoxContainer = styled.div`
+//   border: 2px solid #3478f6;  
+//   margin-bottom: 20px;
+//   padding: 5px;
+//   background-color: ${({ theme }) => theme === 'dark' ? '#000' : '#fff'};  
+//   transition: background-color 0.3s, box-shadow 0.3s;
+
+//   &:hover {
+//     background-color: ${({ theme }) => theme === 'dark' ? '#1a2f40' : '#e3f2fd'};  
+//     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); 
+//   }
+// `;
+
+// const Title = styled.h3`
+//   border-bottom: 2.5px solid burlywood;  
+//   padding-bottom: 9px;
+//   color: ${({ theme }) => theme === 'dark' ? 'white' : 'black'};  
+//   text-align:center;
+//   font-size:1em;
+// `;
+
+// const ListItem = styled.div`
+//   display: flex;
+//   align-items: center;
+//   margin: 15px 1px;
+//   color: ${({ theme }) => theme === 'dark' ? 'white' : 'black'};  
+// `;
+
+// const ColorIndicator = styled.span`
+//   height: 11px;
+//   width: 11px;
+//   background-color: ${props => props.color};
+//   border-radius: 50%;
+//   display: inline-block;
+//   margin-right: 11px;
+// `;
+
+// const Flag = styled.img`
+//   width: 20px;  
+//   height: 15px;  
+//   object-fit: cover;  
+//   margin-right: 10px;  
+//   vertical-align: middle;  
+// `;
+
+// const StatBox = ({ title, items }) => {
+//   const { theme } = useContext(ThemeContext); 
+
+//   return (
+//     <BoxContainer theme={theme}>
+//       <Title theme={theme}>{title}</Title>
+//       {items.map((item, index) => (
+//         <ListItem key={index} theme={theme}>
+//           {item.color && <ColorIndicator color={item.color} />}
+//           {item.flag && <Flag src={item.flag} alt={`${item.name} flag`} />}
+//           {item.name}
+//         </ListItem>
+//       ))}
+//     </BoxContainer>
+//   );
+// };
+
+// export default StatBox;
+
+// import React from 'react';
+// import styled from 'styled-components';
+ 
+// const BoxContainer = styled.div`
+//   border: 2px solid #3478f6;  
+//   margin-bottom: 20px;
+//   padding: 15px;
+//   background-color: #000;  
+//   transition: background-color 0.3s, box-shadow 0.3s;
+//   border-radius: 8px;
+ 
+//   &:hover {
+//     background-color: #1a2f40;  
+//     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+//   }
+// `;
+ 
+// const Title = styled.h3`
+//   border-bottom: 2px solid burlywood;  
+//   padding-bottom: 9px;
+//   color: white;  
+//   text-align: center;
+//   margin-bottom: 15px;
+// `;
+ 
+// const ListItem = styled.div`
+//   display: flex;
+//   align-items: center;
+//   margin: 10px 0;
+//   color: white;  
+// `;
+ 
+// const ColorIndicator = styled.span`
+//   height: 12px;
+//   width: 12px;
+//   background-color: ${props => props.color || '#fff'};
+//   border-radius: 50%;
+//   display: inline-block;
+//   margin-right: 10px;
+// `;
+ 
+// const Flag = styled.img`
+//   width: 20px;  
+//   height: 15px;  
+//   object-fit: cover;  
+//   margin-right: 10px;  
+//   vertical-align: middle;  
+// `;
+ 
+// const StatBox = ({ title, items }) => {
+//   return (
+//     <BoxContainer>
+//       <Title>{title}</Title>
+//       {items.map((item, index) => (
+//         <ListItem key={index}>
+//           {item.color && <ColorIndicator color={item.color} />}
+//           {item.flag && <Flag src={item.flag} alt={`${item.name} flag`} />}
+//           {item.name}
+//         </ListItem>
+//       ))}
+//     </BoxContainer>
+//   );
+// };
+ 
+// export default StatBox;
+
+
+
+
+
+
+// import React from 'react';
+// import styled from 'styled-components';
+ 
+// const BoxContainer = styled.div`
+//   border: 2px solid #3478f6;  
+//   margin-bottom: 20px;
+//   padding: 15px;
+//   background-color: #000;  
+//   transition: background-color 0.3s, box-shadow 0.3s;
+//   border-radius: 8px;
+ 
+//   &:hover {
+//     background-color: #1a2f40;  
+//     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+//   }
+// `;
+ 
+// const Title = styled.h3`
+//   border-bottom: 2px solid burlywood;  
+//   padding-bottom: 9px;
+//   color: white;  
+//   text-align: center;
+//   margin-bottom: 15px;
+// `;
+ 
+// const ListItem = styled.div`
+//   display: flex;
+//   align-items: center;
+//   margin: 10px 0;
+//   color: white;  
+// `;
+ 
+// const ColorIndicator = styled.span`
+//   height: 12px;
+//   width: 12px;
+//   background-color: ${props => props.color || '#fff'};
+//   border-radius: 50%;
+//   display: inline-block;
+//   margin-right: 10px;
+// `;
+ 
+// const Flag = styled.img`
+//   width: 20px;  
+//   height: 15px;  
+//   object-fit: cover;  
+//   margin-right: 10px;  
+//   vertical-align: middle;  
+// `;
+ 
+// const StatBox = ({ title, items }) => {
+//   return (
+// <BoxContainer>
+// <Title>{title}</Title>
+//       {items.map((item, index) => (
+// <ListItem key={index}>
+//           {item.color && <ColorIndicator color={item.color} />}
+//           {item.flag && <Flag src={item.flag} alt={`${item.name} flag`} />}
+// <span>{item.name || 'Unknown'}</span> {/* Display item name or fallback */}
+// </ListItem>
+//       ))}
+// </BoxContainer>
+//   );
+// };
+ 
+// export default StatBox;
+
+
+
+
+
+
+
+
+
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { ThemeContext } from './ThemeContext';
@@ -55,36 +268,48 @@ const ModalHeader = styled.h2`
   color: #000;
   margin-bottom: 10px; 
   `;
-  const Icon = styled.img`
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
-`;
+
   const preventionDetails = {
-    PHISHING: {
-      title: "PHISHING PREVENTION",
+    HTTP_Exploit: {
+      title: "HTTP_Exploit (Prevention)",
       content: [
-        "Never provide personal financial information.",
-        "Use advanced email filters.",
-        "Regularly update security policies and procedures."
+        "Regularly update and patch web servers and applications.",
+        "Use Web Application Firewalls (WAFs).",
+        "Add security features to your website (like Content Security Policy)."
       ]
     },
-    DDOS: {
-      title: "DDoS PREVENTION",
+    HTTP_Scan: {
+      title: "HTTP_Scan (Prevention)",
       content: [
-        "Overprovision bandwidth to handle unexpected traffic spikes.",
-        "Utilize DDoS mitigation tools effectively.",
-        "Monitor traffic consistently to detect anomalies early."
+        "Use Intrusion Detection Systems (IDS).",
+        "Block scanning IPs with rate limiting or IP blocking.",
+        "Implement rate limiting for HTTP requests."
       ]
     },
-    MALWARE: {
-      title: "MALWARE PREVENTION",
+    SSH_Bruteforce: {
+      title: "SSH_Bruteforce (Prevention)",
       content: [
-        "Use updated antivirus software across all devices.",
-        "Regularly apply security patches and updates.",
-        "Conduct frequent security audits and vulnerability assessments."
+        "Use key-based authentication .",
+        "Enforce strong passwords.",
+        "Use multi-factor authentication (MFA)."
       ]
-    }
+    },
+    SMB_RDP_bruteforce: {
+      title: "SMB/RDP_bruteforce (Prevention)",
+      content: [
+        "Use multi-factor authentication (MFA).",
+        "Use newer, safer versions of SMB.",
+        "Limit access to trusted IPs."
+      ]
+    },
+    Telnet_Bruteforce: {
+      title: "Telnet_Bruteforce (Prevention)",
+      content: [
+        "Restrict access to Telnet via firewalls (trusted IPs).",
+        "Disable Telnet, replace with SSH",
+        "Implement strong passwords"
+      ]
+    },
   };
  
 const StatBox = ({ title, items }) => {
@@ -94,14 +319,14 @@ const StatBox = ({ title, items }) => {
   const handleItemClick = item => {
     setSelectedItem(preventionDetails[item.name]);
   };
-  const defaultIcon = '/default.jpg';
+
   return (
  <BoxContainer theme={theme}>
   <Title theme={theme}>{title}</Title>
       {items.map((item, index) => (
 <ListItem key={index} theme={theme} onClick={() => handleItemClick(item)}>
-   {item.color && title !== "TARGETED NATIONS" && <ColorIndicator color={item.color} />}
-   <Icon src={item.icon || defaultIcon} alt={`${item.name}`} />
+          {item.color  && title !== "TARGETED NATIONS" && <ColorIndicator color={item.color} />}
+          {item.icon && <img src={item.icon} alt={item.name || "Icon"} style={{ width: '24px', height: '24px', marginRight: '8px' }} />}
           {item.flag && <Flag src={item.flag} alt={`${item.name} flag`} />}
 <span>{item.name || 'Unknown'}</span> 
 </ListItem>
@@ -117,5 +342,5 @@ const StatBox = ({ title, items }) => {
 </BoxContainer>
   );
 };
- 
+
 export default StatBox;

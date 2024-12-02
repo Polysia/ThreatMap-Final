@@ -3,6 +3,9 @@ from .views import *
 from .views_2 import *
 from .views_3 import *
 from .views_incidents import *
+from .views_filter_dates import *
+from .views_Country_Trend import *
+from .views_heatmap import *
 
 urlpatterns = [
     path('fetch_top5_threats/', fetch_top5_country_data, name='fetch_threat_data'),
@@ -12,4 +15,7 @@ urlpatterns = [
     path('a/<str:start_date>/<str:end_date>/',fetch_daily_data),
     path('incidents/', fetch_incidents_and_store ),
     path('dis_inci/', display_incidents ),
+    path('filter_date/', filter_by_dates),
+    path('trend/', country_attack_trends_view),
+    path('heatmap/', get_attack_count_view),
 ]
