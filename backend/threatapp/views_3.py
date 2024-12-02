@@ -5,6 +5,13 @@ from rest_framework.response import Response
 from datetime import datetime, timedelta
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from pymongo import MongoClient
+
+
+# MongoDB Configuration
+client = MongoClient("mongodb://db:27017/")  # Replace with your MongoDB connection string
+db = client["threatdata"]  # Database name
+collection = db["daily_attacks"]  # Collection name
 
 #@api_view(['GET'])
 def fetch_daily_data(request=None):
@@ -27,11 +34,27 @@ def fetch_daily_data(request=None):
         date = day.find('date').text
         total_attacks = int(day.find('count').text)
 
-        # Append the data to the list in the desired format
-        data.append({
+        # # Append the data to the list in the desired format
+        # data.append({
+        #     "date": date,
+        #     "TotalAttacks": total_attacks
+        # })
+        
+        # Prepare the document to store in MongoDB
+        record = {
             "date": date,
             "TotalAttacks": total_attacks
-        })
+        }
+
+        # Insert or update the document in MongoDB
+        collection.update_one(
+            {"date": date},  # Query to find an existing record
+            {"$set": record},  # Update the record or insert if not found
+            upsert=True  # Insert the record if it does not exist
+        )
+
+        # Append the record to the list
+        data.append(record)
         
         # Send WebSocket update to the 'daily_threat_updates' group
     channel_layer = get_channel_layer()

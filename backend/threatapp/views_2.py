@@ -9,13 +9,14 @@ import traceback, pytz
 import numpy as np
 
 # MongoDB Connection
-client = MongoClient('mongodb://localhost:27017/')  # Adjust MongoDB connection string if necessary
+client = MongoClient('mongodb://db:27017/')  # Adjust MongoDB connection string if necessary
 db = client['threatdata']  # Your MongoDB database name
 threat_data = db['new']  # Your MongoDB collection name
 config = db['config']  # A separate collection to store configurations like last checked time
 
 # AlienVault Pulse IDs (Add as many as you like)
 ALIENVAULT_PULSES = [
+    "6421c1a0fd8452595dc148fa",
     "66794486bda6c3cf8823c604",
     "60ece5998a5b54a5ffe75cb4",
     "5a7e3e70c44e7b48947593a7",
@@ -36,8 +37,9 @@ ALIENVAULT_HEADERS = {
 CROWDSEC_API_URL = "https://cti.api.crowdsec.net/v2/smoke/"
 CROWDSEC_HEADERS = {
     "Content-Type": "application/json",
-    #"x-api-key": "pBs9iBKd3F4pTXH55LlagabqOUiHpAqy6x4DG5uh"  # CrowdSec API key
-    "x-api-key": 'FnNp1xLZhe1FJREmscGdw6N97Fc5Gtri1ZG5NFfB'
+    "x-api-key": "pBs9iBKd3F4pTXH55LlagabqOUiHpAqy6x4DG5uh"  # CrowdSec API key
+    #"x-api-key": 'FnNp1xLZhe1FJREmscGdw6N97Fc5Gtri1ZG5NFfB'
+    #"x-api-key": "OfFBV7VBAu6fogXAKNsG28oTGNTxLkmN6PNeU3zP"
 }
 
 
@@ -78,9 +80,11 @@ def fetch_threat_and_store(request=None):
             
             # If no IPs are found, exit early
             if len(ip_array) == 0:
-                return Response({"message": "No IP addresses found in AlienVault response."}, status=200)
+                print("No IP addresses found in AlienVault response.")
+                continue
+                #return Response({"message": "No IP addresses found in AlienVault response."}, status=200)
 
-            selected_ips = ip_array[-1:-2:-1] # Example: select the last 2 IPs
+            selected_ips = ip_array[-1:-4:-1] # Example: select the last 2 IPs
             
             results_to_store = []  # List to store results for MongoDB
 
@@ -111,79 +115,140 @@ def fetch_threat_and_store(request=None):
                 country_longitude = crowdsec_data.get('location', {}).get('longitude', 'N/A')
                 reputation = crowdsec_data.get('reputation', 'Unknown')
                 confidence = crowdsec_data.get('confidence', 'Unknown')
-                behaviors = [behavior['label'] for behavior in crowdsec_data.get('behaviors', [])]
+                #behaviors = [behavior['label'] for behavior in crowdsec_data.get('behaviors', [])]
                 attack_details = [attack['label'] for attack in crowdsec_data.get('attack_details', [])]
                 reported =  crowdsec_data.get('history', {}).get('first_seen', 'Unknown')
                 
                 # If we want a single entry from the behaviors section then use this line and comment the first one
-                #behaviors = [crowdsec_data.get('behaviors', [{}])[0].get('label')] if crowdsec_data.get('behaviors') else []
-
+                behaviors = [crowdsec_data.get('behaviors', [{}])[0].get('label')] if crowdsec_data.get('behaviors') else []
+                
+                # Fetch full Source_Country name
+                try:
+                    response = requests.get(f"https://restcountries.com/v3.1/alpha/{source_country}")
+                    source_country = response.json()[0]["name"]["common"] if response.ok else source_country
+                except Exception as e:
+                    source_country = source_country  # Keep the short form in case of an exception
+                    
+                
                 
                 # Step 5: Handle multiple attacked countries separately
                 target_countries = crowdsec_data.get('target_countries', {})
                 attacked_countries = [country for country in target_countries.keys()]
-
-                # For each attacked country, create a separate MongoDB document And 
-                # Check if this IP and attacked country already exists in MongoDB
+                
                 for attacked_country in attacked_countries:
                     # Check if the record already exists
                     existing_record = threat_data.find_one({
                         'ip_address': ip,
                         'Destination_Name': attacked_country
                     })
-                    
-                    if existing_record: 
-                        print(f"Record already exists for IP: {ip}, Destination: {attacked_country}")
 
-                    # If the record does not exist, add it to the list to be inserted
+                    # Fetch the latitude and longitude using the country code
+                    try:
+                        restcountries_response = requests.get(f"https://restcountries.com/v3.1/alpha/{attacked_country}")
+                        if restcountries_response.ok:
+                            restcountries_data = restcountries_response.json()
+                            attacked_country_full_name = restcountries_data[0]["name"]["common"]
+                            country_coordinates = restcountries_data[0].get("latlng", [None, None])
+                            dest_lat, dest_lon = country_coordinates[0], country_coordinates[1]
+                        else:
+                            attacked_country_full_name = attacked_country
+                            print(f"RestCountries Error for {attacked_country}: {restcountries_response.status_code}")
+                            dest_lat, dest_lon = None, None  # Fallback if the API call fails
+                    except Exception as e:
+                        attacked_country_full_name = attacked_country
+                        print(f"RestCountries API Exception: {e}")
+                        dest_lat, dest_lon = None, None  # Fallback in case of an exception
+
+                    # Create a threat record
+                    threat_info = {
+                        'ip_address': ip,
+                        'source_Name': source_country,
+                        'source': [country_latitude, country_longitude],
+                        'Destination_Name': attacked_country_full_name,
+                        'destination': [dest_lat, dest_lon],
+                        'reported': reported,
+                        'Category': reputation,
+                        'Threat_Name': behaviors,
+                        'Threat_Level': confidence,
+                        'attack_details': attack_details,
+                    }
+
+                    # Send to WebSocket clients regardless of database storage
+                    push_threat_update(threat_info)
+
+                    # Add to `results_to_store` only if it's not a duplicate
                     if not existing_record:
-                        # Fetch the latitude and longitude using the country code
-                        try:
-                            restcountries_response = requests.get(f"https://restcountries.com/v3.1/alpha/{attacked_country}")
-                            if restcountries_response.ok:
-                                restcountries_data = restcountries_response.json()
-                                country_coordinates = restcountries_data[0].get("latlng", [None, None])
-                                dest_lat, dest_lon = country_coordinates[0], country_coordinates[1]
-                            else:
-                                print(f"RestCountries Error for {attacked_country}: {restcountries_response.status_code}")
-                                dest_lat, dest_lon = None, None  # Fallback if the API call fails
-                        except Exception as e:
-                            print(f"RestCountries API Exception: {e}")
-                            dest_lat, dest_lon = None, None  # Fallback in case of an exception
-                        # Create a threat record to store in MongoDB for each attacked country
-                        threat_info = {
-                            'ip_address': ip,
-                            'source_Name': source_country,
-                            'source': [country_latitude, country_longitude],
-                            'Destination_Name': attacked_country, 
-                            'destination' : [dest_lat, dest_lon],
-                            'reported': reported,
-                            'Category': reputation,
-                            'Threat_Name': behaviors,
-                            'Threat_Level': confidence,
-                            'attack_details': attack_details,
-                            #'date_checked': current_time
-                        }
+                        results_to_store.append(threat_info)
+                        #threat_data.insert_one(threat_info)
                         
-                        # Insert document and get _id
-                        inserted_id = threat_data.insert_one(threat_info).inserted_id
-                        print(f"Inserted record for IP {ip} with destination {attacked_country}")
+                        
+                        # # Step 6: Store the combined data into MongoDB
+                        # if results_to_store:
+                        #     print(f"Inserting {len(results_to_store)} new records into MongoDB")
+                        #     threat_data.insert_one(results_to_store)
+                        #     # Update last checked time in MongoDB
+                        #     config.update_one({"config_name": "last_checked"}, {"$set": {"time": current_time}}, upsert=True)
+                        #     print("updated config")
+                        #     #return Response({"message": "Data successfully inserted into MongoDB."}, status=200)
+                        #     print("successful")
+                        # else:
+                        #     print("No data stored")
+                        #     return Response({"message": "No new data to insert."}, status=200)
 
-                        # Add _id as string to threat_info for WebSocket
-                        threat_info['_id'] = str(inserted_id)
-                        threat_info.pop('_id', None)  # this line will remove _id from websocket output
-                        push_threat_update(threat_info)  # Broadcast new threat to WebSocket clients
 
-        config.update_one({"config_name": "last_checked"}, {"$set": {"time": current_time}}, upsert=True)
-        print("Config updated after storing all the data.")
+                # # For each attacked country, create a separate MongoDB document And 
+                # # Check if this IP and attacked country already exists in MongoDB
+                # for attacked_country in attacked_countries:
+                #     # Check if the record already exists
+                #     existing_record = threat_data.find_one({
+                #         'ip_address': ip,
+                #         'Destination_Name': attacked_country
+                #     })
+                    
+                #     if existing_record: 
+                #         print(f"Record already exists for IP: {ip}, Destination: {attacked_country}")
+
+                #     # If the record does not exist, add it to the list to be inserted
+                #     if not existing_record:
+                #         # Fetch the latitude and longitude using the country code
+                #         try:
+                #             restcountries_response = requests.get(f"https://restcountries.com/v3.1/alpha/{attacked_country}")
+                #             if restcountries_response.ok:
+                #                 restcountries_data = restcountries_response.json()
+                #                 country_coordinates = restcountries_data[0].get("latlng", [None, None])
+                #                 dest_lat, dest_lon = country_coordinates[0], country_coordinates[1]
+                #             else:
+                #                 print(f"RestCountries Error for {attacked_country}: {restcountries_response.status_code}")
+                #                 dest_lat, dest_lon = None, None  # Fallback if the API call fails
+                #         except Exception as e:
+                #             print(f"RestCountries API Exception: {e}")
+                #             dest_lat, dest_lon = None, None  # Fallback in case of an exception
+                #         # Create a threat record to store in MongoDB for each attacked country
+                #         threat_info = {
+                #             'ip_address': ip,
+                #             'source_Name': source_country,
+                #             'source': [country_latitude, country_longitude],
+                #             'Destination_Name': attacked_country, 
+                #             'destination' : [dest_lat, dest_lon],
+                #             'reported': reported,
+                #             'Category': reputation,
+                #             'Threat_Name': behaviors,
+                #             'Threat_Level': confidence,
+                #             'attack_details': attack_details,
+                #             #'date_checked': current_time
+                #         }
+                  
                         
                         
+                #     results_to_store.append(threat_info)
                         
-                        
-        '''             results_to_store.append(threat_info)
-                        
-                        # **Send WebSocket update**
-                        push_threat_update(threat_info)  # Broadcast new threat to WebSocket clients
+                #         # **Send WebSocket update**
+                #     push_threat_update(threat_info)  # Broadcast new threat to WebSocket clients
+    
+    
+    #**********IF U WANT TO STORE DATA AT LAST THEN USE THE BELOW CODE********
+    
+    
     
         # Step 6: Store the combined data into MongoDB
         if results_to_store:
@@ -196,7 +261,7 @@ def fetch_threat_and_store(request=None):
             print("successful")
         else:
             print("No data stored")
-            return Response({"message": "No new data to insert."}, status=200)'''
+            return Response({"message": "No new data to insert."}, status=200)
 
     except Exception as e:
         print(f"Error: {e}\nTraceback: {traceback.format_exc()}")

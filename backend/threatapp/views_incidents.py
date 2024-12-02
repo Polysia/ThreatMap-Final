@@ -7,9 +7,9 @@ from .consumers import *
 import traceback
 
 # MongoDB Connection
-client = MongoClient('mongodb://localhost:27017/')  # Adjust MongoDB connection string if necessary
+client = MongoClient('mongodb://db:27017/')  # Adjust MongoDB connection string if necessary
 db = client['threatdata']  # Your MongoDB database name
-threat_data = db['incidents']  # Your MongoDB collection name
+threat_data = db['incidents2']  # Your MongoDB collection name
 
 # AlienVault API details
 ALIENVAULT_API_URL = "https://otx.alienvault.com/api/v1/pulses/subscribed"
@@ -58,7 +58,7 @@ def fetch_incidents_and_store(request=None):
                     'incident_name': incident.get('name'),
                     'date': incident.get('created'),  # Assuming 'created' is the date field
                     'description': incident.get('description'),
-                    'affected_zones': incident.get('targeted_countries', 'Unknown'),  # Assuming this field exists
+                    'affected_zones': incident.get('targeted_countries') or 'Unknown',  # Provide 'Unknown' if empty or None
                     'incidentlevel': incident['tlp'],
                     'status': 'Active' if incident['public'] == 1 else 'Inactive',
                     'reportedby': incident['author_name']  # Assuming 'created_by' corresponds to reported by
@@ -78,6 +78,10 @@ def fetch_incidents_and_store(request=None):
 
                 # Send WebSocket notifications with new incidents
                 for incident in new_incidents:
+                    # Remove fields you don't want to send in the WebSocket update 
+                    incident.pop('id', None) 
+                    incident.pop('incidentlevel', None)
+                    incident.pop('reportedby', None)
                     incident['_id'] = str(incident['_id'])
                     push_incident_update(incident)  # Notify WebSocket clients about the new incidents
 
