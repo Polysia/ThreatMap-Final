@@ -5,3 +5,5 @@ services:
     ports:
       - "3000:3000"
     container_name: ui-container
+    volumes:
+      - ./src:/app/src  # Link local ./src to /app/src inside container

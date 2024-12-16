@@ -37,8 +37,8 @@ ALIENVAULT_HEADERS = {
 CROWDSEC_API_URL = "https://cti.api.crowdsec.net/v2/smoke/"
 CROWDSEC_HEADERS = {
     "Content-Type": "application/json",
-    "x-api-key": "pBs9iBKd3F4pTXH55LlagabqOUiHpAqy6x4DG5uh"  # CrowdSec API key
-    #"x-api-key": 'FnNp1xLZhe1FJREmscGdw6N97Fc5Gtri1ZG5NFfB'
+    #"x-api-key": "pBs9iBKd3F4pTXH55LlagabqOUiHpAqy6x4DG5uh"  # CrowdSec API key
+    "x-api-key": 'FnNp1xLZhe1FJREmscGdw6N97Fc5Gtri1ZG5NFfB'
     #"x-api-key": "OfFBV7VBAu6fogXAKNsG28oTGNTxLkmN6PNeU3zP"
 }
 
@@ -117,7 +117,7 @@ def fetch_threat_and_store(request=None):
                 confidence = crowdsec_data.get('confidence', 'Unknown')
                 #behaviors = [behavior['label'] for behavior in crowdsec_data.get('behaviors', [])]
                 attack_details = [attack['label'] for attack in crowdsec_data.get('attack_details', [])]
-                reported =  crowdsec_data.get('history', {}).get('first_seen', 'Unknown')
+                reported =  crowdsec_data.get('history', {}).get('last_seen', 'Unknown')
                 
                 # If we want a single entry from the behaviors section then use this line and comment the first one
                 behaviors = [crowdsec_data.get('behaviors', [{}])[0].get('label')] if crowdsec_data.get('behaviors') else []
@@ -178,90 +178,32 @@ def fetch_threat_and_store(request=None):
 
                     # Add to `results_to_store` only if it's not a duplicate
                     if not existing_record:
-                        results_to_store.append(threat_info)
-                        #threat_data.insert_one(threat_info)
+                        #results_to_store.append(threat_info)
+                        threat_data.insert_one(threat_info)
                         
                         
-                        # # Step 6: Store the combined data into MongoDB
-                        # if results_to_store:
-                        #     print(f"Inserting {len(results_to_store)} new records into MongoDB")
-                        #     threat_data.insert_one(results_to_store)
-                        #     # Update last checked time in MongoDB
-                        #     config.update_one({"config_name": "last_checked"}, {"$set": {"time": current_time}}, upsert=True)
-                        #     print("updated config")
-                        #     #return Response({"message": "Data successfully inserted into MongoDB."}, status=200)
-                        #     print("successful")
-                        # else:
-                        #     print("No data stored")
-                        #     return Response({"message": "No new data to insert."}, status=200)
+                    else:
+                        print("No data stored")
 
-
-                # # For each attacked country, create a separate MongoDB document And 
-                # # Check if this IP and attacked country already exists in MongoDB
-                # for attacked_country in attacked_countries:
-                #     # Check if the record already exists
-                #     existing_record = threat_data.find_one({
-                #         'ip_address': ip,
-                #         'Destination_Name': attacked_country
-                #     })
-                    
-                #     if existing_record: 
-                #         print(f"Record already exists for IP: {ip}, Destination: {attacked_country}")
-
-                #     # If the record does not exist, add it to the list to be inserted
-                #     if not existing_record:
-                #         # Fetch the latitude and longitude using the country code
-                #         try:
-                #             restcountries_response = requests.get(f"https://restcountries.com/v3.1/alpha/{attacked_country}")
-                #             if restcountries_response.ok:
-                #                 restcountries_data = restcountries_response.json()
-                #                 country_coordinates = restcountries_data[0].get("latlng", [None, None])
-                #                 dest_lat, dest_lon = country_coordinates[0], country_coordinates[1]
-                #             else:
-                #                 print(f"RestCountries Error for {attacked_country}: {restcountries_response.status_code}")
-                #                 dest_lat, dest_lon = None, None  # Fallback if the API call fails
-                #         except Exception as e:
-                #             print(f"RestCountries API Exception: {e}")
-                #             dest_lat, dest_lon = None, None  # Fallback in case of an exception
-                #         # Create a threat record to store in MongoDB for each attacked country
-                #         threat_info = {
-                #             'ip_address': ip,
-                #             'source_Name': source_country,
-                #             'source': [country_latitude, country_longitude],
-                #             'Destination_Name': attacked_country, 
-                #             'destination' : [dest_lat, dest_lon],
-                #             'reported': reported,
-                #             'Category': reputation,
-                #             'Threat_Name': behaviors,
-                #             'Threat_Level': confidence,
-                #             'attack_details': attack_details,
-                #             #'date_checked': current_time
-                #         }
-                  
-                        
-                        
-                #     results_to_store.append(threat_info)
-                        
-                #         # **Send WebSocket update**
-                #     push_threat_update(threat_info)  # Broadcast new threat to WebSocket clients
-    
-    
+        # Config will be updated at last when all the data is fetched from all pulse in loop
+        config.update_one({"config_name": "last_checked"}, {"$set": {"time": current_time}}, upsert=True)
+        print("updated config")
+     
     #**********IF U WANT TO STORE DATA AT LAST THEN USE THE BELOW CODE********
     
     
-    
-        # Step 6: Store the combined data into MongoDB
-        if results_to_store:
-            print(f"Inserting {len(results_to_store)} new records into MongoDB")
-            threat_data.insert_many(results_to_store)
-            # Update last checked time in MongoDB
-            config.update_one({"config_name": "last_checked"}, {"$set": {"time": current_time}}, upsert=True)
-            print("updated config")
-            #return Response({"message": "Data successfully inserted into MongoDB."}, status=200)
-            print("successful")
-        else:
-            print("No data stored")
-            return Response({"message": "No new data to insert."}, status=200)
+        # # Step 6: Store the combined data into MongoDB
+        # if results_to_store:
+        #     print(f"Inserting {len(results_to_store)} new records into MongoDB")
+        #     threat_data.insert_many(results_to_store)
+        #     # Update last checked time in MongoDB
+        #     config.update_one({"config_name": "last_checked"}, {"$set": {"time": current_time}}, upsert=True)
+        #     print("updated config")
+        #     #return Response({"message": "Data successfully inserted into MongoDB."}, status=200)
+        #     print("successful")
+        # else:
+        #     print("No data stored")
+        #     return Response({"message": "No new data to insert."}, status=200)
 
     except Exception as e:
         print(f"Error: {e}\nTraceback: {traceback.format_exc()}")

@@ -22,7 +22,7 @@ def country_attack_trends_view(request):
     print(f"Current Time: {now}")
     
     if period == 'daily':
-        start_date = now - timedelta(days=30)  # Last 30 days for daily trend
+        start_date = now - timedelta(days=7)  # Last 30 days for daily trend
     elif period == 'weekly':
         start_date = now - timedelta(weeks=4)  # Last 4 weeks for weekly trend
     else:  # Default to 'monthly' trend

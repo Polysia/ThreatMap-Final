@@ -9,8 +9,8 @@ def get_attack_count_view(request):
     now = datetime.now()
 
     # Set the start and end dates as needed (change days=2 to whatever value you want)
-    start_date = now - timedelta(days=10)  # Example: 2 days before the current date
-    end_date = start_date + timedelta(days=9)  # End of the previous day
+    start_date = now - timedelta(days=2)  # Example: 2 days before the current date
+    end_date = start_date + timedelta(days=2)  # End of the previous day
 
     # Convert to string format for MongoDB query
     start_date_str = start_date.isoformat()
@@ -45,7 +45,10 @@ def get_attack_count_view(request):
         },
         {
             "$sort": {"intensity": -1}  # Sort by intensity (number of attacks)
-        }
+        },
+        # {
+        #     "$limit": 2
+        # }
     ]
 
     # Run the aggregation query
@@ -58,7 +61,7 @@ def get_attack_count_view(request):
     result_data = []
     for entry in result:
         result_data.append({
-            #"country_name": entry["country"],
+            "country_name": entry["country"],
             "intensity": entry["intensity"],
             "latitude": entry["latitude"] if entry["latitude"] else None,  # Directly use latitude value
             "longitude": entry["longitude"] if entry["longitude"] else None  # Directly use longitude value
