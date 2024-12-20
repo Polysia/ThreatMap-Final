@@ -391,6 +391,13 @@ const MapComponent = ({ isSidebarOpen, attackSpeed }) => {
             maxZoom: 17,
             minOpacity: 0.4,
             max: 20,     // Maximum intensity value
+            gradient: {
+              0.0: 'yellow',  // Start color
+              0.25: 'pink',
+              0.5: 'pink',
+              0.75: 'orange',
+              1.0: 'red'    // End color
+            }
           }).addTo(map);
         }
       } catch (error) {

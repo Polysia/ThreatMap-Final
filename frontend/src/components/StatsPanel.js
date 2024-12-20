@@ -368,6 +368,7 @@ import styled from 'styled-components';
 import StatBox from './StatBox';
 import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from 'react-icons/fa'; 
 import { ThemeContext } from './ThemeContext'; 
+import ColorIndication from './ColorIndication';
  
 const PanelContainer = styled.div`
   padding: 14px;
@@ -517,6 +518,7 @@ const StatsPanel = ({ isSidebarOpen, toggleSidebar }) => {
           }))}
         />
 
+<ColorIndication theme={theme} />
 </PanelContainer>
 <ToggleIcon onClick={toggleSidebar}>
         {isSidebarOpen ? <FaArrowAltCircleLeft size="20" /> : <FaArrowAltCircleRight size="20" />}
