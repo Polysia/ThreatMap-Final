@@ -93,7 +93,7 @@ def fetch_threat_and_store_task(queue='concurrent_tasks'):
     fetch_threat_and_store()
 
 @shared_task
-def fetch_incidents_and_store_task(queue='single_tasks'):
+def fetch_incidents_and_store_task(queue='incident_tasks'):
     """Task to fetch and store incidents data."""
     print("Fetching the Incidents")
     fetch_incidents_and_store()

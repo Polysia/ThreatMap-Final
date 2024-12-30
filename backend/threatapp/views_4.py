@@ -27,8 +27,8 @@ def top_attacked_industries(request=None):
  
     headers = {
         "Content-Type": "application/json",
-        "X-Auth-Email": "sanjaykmrcs@gmail.com",  
-        "X-Auth-Key": "3ece1ffa9c008ba16d254282447802a81329d"
+        "X-Auth-Email": "gprakhar9522@gmail.com",  
+        "X-Auth-Key": "70f4b092d1d6e294c0c73cf641c3ef42f19e1"
     }
    
     params = {

@@ -178,3 +178,44 @@ def push_top5_industry_update(data):
             'data': data
         }
     )
+    
+    
+    
+    
+#This is the Consumer.py code for the Threat_count views Below 
+
+
+import asyncio
+from threatapp.views_Threat_Count import threat_name_count_view
+
+
+class ThreatNameConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.group_name = "threat_name_updates"
+        
+        # Accept WebSocket connection
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept()
+
+        # Start periodic updates
+        self.keep_running = True
+        await self.send_real_time_data()
+
+    async def disconnect(self, close_code):
+        # Leave WebSocket group
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+        self.keep_running = False
+
+    async def send_real_time_data(self):
+        while self.keep_running:
+            # Fetch latest threat counts from view (this will return a JsonResponse)
+            response = threat_name_count_view(None)  # Pass None as request
+            
+            # Extract the data from the JsonResponse (since the view already returns it as a dictionary)
+            updated_data = response.content.decode('utf-8')  # This gives you the JSON response as a string
+            
+            # Send the updated data to the frontend
+            await self.send(text_data=updated_data)
+            
+            # Wait for 5 seconds before sending the next update
+            await asyncio.sleep(5)

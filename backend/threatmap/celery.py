@@ -61,6 +61,7 @@ app.autodiscover_tasks(['threatapp'])  # Update with your app name
 app.conf.task_queues = (
     Queue('concurrent_tasks', routing_key='concurrent.#'),
     Queue('single_tasks', routing_key='single.#'),
+    Queue('incident_tasks', routing_key='incident.#' )
 )
 
 # Define task routing
@@ -69,7 +70,7 @@ app.conf.task_routes = {
     'threatapp.tasks.fetch_top5_country_data_task': {'queue': 'single_tasks'},
     'threatapp.tasks.fetch_top5_industry_data_task': {'queue': 'single_tasks'},
     'threatapp.tasks.fetch_threat_and_store_task': {'queue': 'concurrent_tasks'},
-    'threatapp.tasks.fetch_incidents_and_store_task': {'queue': 'single_tasks'},
+    'threatapp.tasks.fetch_incidents_and_store_task': {'queue': 'incident_tasks'},
     'threatapp.tasks.periodic_fetch_and_store': {'queue': 'concurrent_tasks'},
 }
 

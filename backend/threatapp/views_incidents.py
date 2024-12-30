@@ -9,7 +9,7 @@ import traceback
 # MongoDB Connection
 client = MongoClient('mongodb://db:27017/')  # Adjust MongoDB connection string if necessary
 db = client['threatdata']  # Your MongoDB database name
-threat_data = db['incidents2']  # Your MongoDB collection name
+threat_data = db['incidents']  # Your MongoDB collection name
 
 # AlienVault API details
 ALIENVAULT_API_URL = "https://otx.alienvault.com/api/v1/pulses/subscribed"

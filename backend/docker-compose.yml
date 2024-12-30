@@ -42,6 +42,18 @@ services:
     volumes:
       - .:/app
 
+  celery_incident_tasks:
+    build:
+      context: .
+    command: >
+      celery -A threatmap worker --loglevel=info --pool=threads --concurrency=2
+      -Q incident_tasks --without-gossip --without-mingle --without-heartbeat
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - .:/app
+
   celery_concurrent_tasks:
     build:
       context: .
