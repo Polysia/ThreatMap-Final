@@ -99,7 +99,7 @@ def fetch_incidents_and_store_task(queue='incident_tasks'):
     fetch_incidents_and_store()
 
 @shared_task
-def periodic_fetch_and_store(queue='single_tasks'):
+def periodic_fetch_and_store(queue='concurrent_tasks'):
     try:
         """A Celery task to periodically fetch and store data."""
 
