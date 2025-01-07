@@ -76,6 +76,12 @@
     background-color: #00f4ff;
     color: black;
   }
+
+  .data-display { 
+    max-height: 400px; /* Set a fixed height for the table */ 
+    overflow-y: auto; /* Enable vertical scrolling */ 
+  }
+
   .data-display table {
     width: 100%;
     border-collapse: collapse;

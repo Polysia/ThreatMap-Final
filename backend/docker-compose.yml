@@ -14,6 +14,7 @@ services:
       - redis
       - celery_single_tasks
       - celery_concurrent_tasks
+      - celery_incident_tasks
       - celery_beat
 
   db:

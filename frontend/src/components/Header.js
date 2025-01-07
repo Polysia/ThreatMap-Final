@@ -35,13 +35,13 @@ const Header = ({ onToggleIncidents,onToggleThreats }) => {
           ABOUT US
         </button>
         <button onClick={() => handleRedirect('https://www.linkedin.com/in/polysia-tech/')} className="social-icon">
-          <FaLinkedin size={28} />
+          <FaLinkedin size={20} />
         </button>
         <button onClick={() => handleRedirect('https://www.instagram.com/polysiatech/')} className="social-icon">
-          <FaInstagram size={28} />
+          <FaInstagram size={20} />
         </button>
         <button onClick={() => handleRedirect('https://www.youtube.com/@PolysiaTech')} className="social-icon">
-          <FaYoutube size={28} />
+          <FaYoutube size={20} />
         </button>
       </div>
     </header>
