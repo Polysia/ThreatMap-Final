@@ -95,7 +95,7 @@ html, body {
 :root {
   --map-background-color: #000;
   --map-line-color: #4A90E2; 
-  --map-fill-color: 000; 
+  --map-fill-color: #000; 
   --map-attack-line-color: #fff; 
   --attack-line-color-malware: #D32F2F; 
   --attack-line-color-phishing: #7B1FA2; 
